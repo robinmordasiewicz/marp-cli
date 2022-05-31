@@ -47,7 +47,8 @@ COPY --chown=ubuntu:ubuntu . .
 #RUN yarn install --production --frozen-lockfile && yarn cache clean && node marp-cli.js --version
 
 # Setup workspace for user
-#USER root
+USER root
+ENV MARP_USER ubuntu:ubuntu
 
 #ENTRYPOINT ["/opt/marp/docker-entrypoint"]
 #CMD ["--help"]
