@@ -20,22 +20,34 @@ RUN apk update && apk upgrade && \
       wayland-dev@edge \
       su-exec
 
-RUN addgroup -S marp && adduser -S -g marp marp \
-    && mkdir -p /home/marp/app /home/marp/.cli \
-    && chown -R marp:marp /home/marp
+RUN addgroup -S ubuntu && adduser -S -g ubuntu ubuntu \
+    && chown -R ubuntu:ubuntu /home/ubuntu
+
+ENV MARP_USER ubuntu:ubuntu
+
+RUN mkdir /opt/marp
+COPY docker-entrypoint /opt/marp/docker-entrypoint
+RUN chmod 755 /opt/marp/docker-entrypoint
+
+WORKDIR /home/ubuntu/
+RUN npm install --save v8-compile-cache
+RUN npm install @babel/core
+RUN npm install -g @marp-team/marp-cli
 
 # Install node dependencies, and create v8 cache by running Marp CLI once
-USER marp
+RUN chown -R ubuntu:ubuntu /home/ubuntu
+USER ubuntu:ubuntu
 ENV CHROME_PATH /usr/bin/chromium-browser
 
-WORKDIR /home/marp/.cli
-COPY --chown=marp:marp . .
-RUN yarn install --production --frozen-lockfile && yarn cache clean && node marp-cli.js --version
+COPY --chown=ubuntu:ubuntu . .
+
+#RUN yarn install
+#RUN yarn cache clean
+#RUN node marp-cli.js --version
+#RUN yarn install --production --frozen-lockfile && yarn cache clean && node marp-cli.js --version
 
 # Setup workspace for user
-USER root
-ENV MARP_USER marp:marp
+#USER root
 
-WORKDIR /home/marp/app
-ENTRYPOINT ["/home/marp/.cli/docker-entrypoint"]
-CMD ["--help"]
+#ENTRYPOINT ["/opt/marp/docker-entrypoint"]
+#CMD ["--help"]
